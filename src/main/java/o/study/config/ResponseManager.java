@@ -18,23 +18,32 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 
-import lombok.AllArgsConstructor;
-import o.study.dto.ApiResponseDTO;
+import o.study.dto.RestApiHeaderDTO;
+import o.study.dto.RestApiResultDTO;
 
 @ControllerAdvice	// 예외 처리를 전역 설정	// Controller, RestController에서만 이 핸들러를 호출하여 사용할 수 있다!
 @RestController
 public class ResponseManager {
-	Map<String, Object> apiResult = new HashMap<String, Object>();	
+	Map<String, Object> result = new HashMap<String, Object>();
 	/**
-	 * REST API 응답값 가공
+	 * 공통 REST API Header 응답값 가공
 	 * @return CommonResponseDTO
 	 */	
-	public ApiResponseDTO apiResponse(ApiResponseDTO apiResponseDTO, ApiResponse apiResponse) {
-		apiResponseDTO.setStatus(apiResponse.status);
-		apiResponseDTO.setResult(apiResponse.result);
-		apiResponseDTO.setMessage(apiResponse.message);
-		
-		return apiResponseDTO;
+	public RestApiHeaderDTO restApiHeader(RestApiHeaderDTO header, RestApiHeaderResponse resultResponse) {
+		header.setCode(resultResponse.code);
+		header.setResult(resultResponse.result);
+		header.setMessage(resultResponse.message);
+		return header;
+	}
+	
+	/**
+	 * 공통 REST API result(header+body) 가공
+	 * @return CommonResponseDTO
+	 */	
+	public RestApiResultDTO restApiResult(RestApiHeaderDTO header, HashMap<String, Object> body, RestApiResultDTO result) {
+		result.setHeader(header);
+		result.setBody(body);
+		return result;
 	}
 	
 	/**
@@ -60,12 +69,13 @@ public class ResponseManager {
 		}
 		String message = builder.toString();
 		
-		// 예외처리 결과를 리턴 
-		apiResult.put("status", ApiResponse.BAD_REQUEST.status);
-		apiResult.put("result", ApiResponse.BAD_REQUEST.result);
-		apiResult.put("message",  message);
+		// 예외처리 결과를 리턴
+		HashMap<String, Object> header = new HashMap<String, Object>();
+		header.put("code", RestApiHeaderResponse.BAD_REQUEST.code);
+		result.put("result", RestApiHeaderResponse.BAD_REQUEST.result);
+		result.put("message",  message);
 		
-		return apiResult; 
+		return result; 
 	}
 	
 	/**
@@ -76,11 +86,11 @@ public class ResponseManager {
 	@ExceptionHandler(EmptyResultDataAccessException.class)
 	public Map<String, Object> emptyResultDataAccessExceptionHandler(EmptyResultDataAccessException exception) {
 		// 예외처리 결과를 리턴 
-		apiResult.put("status",  ApiResponse.EMPTY_RESULT_DATA_ACCESS.status);
-		apiResult.put("result",  ApiResponse.EMPTY_RESULT_DATA_ACCESS.result);
-		apiResult.put("message",  ApiResponse.EMPTY_RESULT_DATA_ACCESS.message);
+		result.put("code",  RestApiHeaderResponse.EMPTY_RESULT_DATA_ACCESS.code);
+		result.put("result",  RestApiHeaderResponse.EMPTY_RESULT_DATA_ACCESS.result);
+		result.put("message",  RestApiHeaderResponse.EMPTY_RESULT_DATA_ACCESS.message);
 		
-		return apiResult;
+		return result;
 	}
 	
 	

@@ -13,7 +13,7 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import lombok.extern.slf4j.Slf4j;
-import o.study.dto.AccountDTO;
+import o.study.dto.AccountResponseDTO;
 import o.study.entity.Account;
 import o.study.repository.AccountRepository;
 import o.study.service.AccountService;
@@ -45,7 +45,7 @@ public class OStudyBackendApplication {
 		String initPassword = "!Q2w3e4r";
 		if (accountList.size() == 0) {
 			log.info("****** 계정 정보가 존재하지 않습니다. 테스트용 계정을 생성합니다.");
-			AccountDTO accountDTO = new AccountDTO();
+			AccountResponseDTO accountDTO = new AccountResponseDTO();
 			LocalDate localDate = LocalDate.now();
 			accountDTO.setEmail(initEmail);
 			accountDTO.setPassword(encoder.encode(initPassword));

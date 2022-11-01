@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import o.study.dto.AccountDTO;
+import o.study.dto.AccountResponseDTO;
 import o.study.entity.Account;
 import o.study.repository.AccountRepository;
 
@@ -61,7 +61,7 @@ public class AuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 		
 		// 로그인한 사용자 정보를 조회하여 세션에 담기
 		account = accountRepository.findByEmail(authentication.getName()).orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 계정입니다." + authentication.getName()));
-		AccountDTO accountDTO = new AccountDTO(account);
+		AccountResponseDTO accountDTO = new AccountResponseDTO(account);
 		session.setAttribute("sessionId", accountDTO.getId());
 		session.setAttribute("sessionName", accountDTO.getName());
 		session.setAttribute("sessionEmail", accountDTO.getEmail());

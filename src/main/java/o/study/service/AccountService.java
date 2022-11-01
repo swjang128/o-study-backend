@@ -19,8 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import o.study.config.ApiResponse;
-import o.study.dto.AccountDTO;
+import o.study.config.RestApiHeaderResponse;
+import o.study.dto.AccountResponseDTO;
 import o.study.dto.AccountRequestDTO;
 import o.study.dto.MailDTO;
 import o.study.entity.Account;
@@ -52,7 +52,7 @@ public class AccountService {
 	 * @param account
 	 * @return
 	 */
-	public Account readAccount(AccountDTO accountDTO, Account account) {
+	public Account readAccount(AccountResponseDTO accountDTO, Account account) {
 		account = accountRepository.findByEmail(accountDTO.getEmail()).orElseThrow(() -> new IllegalArgumentException("계정이 존재하지 않습니다. email: " + accountDTO.getEmail()));
 		return account;
 	}
@@ -64,8 +64,8 @@ public class AccountService {
 	 * @return Map<String, Object>
 	 */
 	@Transactional
-	public Map<String, Object> create(AccountDTO accountDTO, Map<String, Object> resultMap) {
-		ApiResponse apiResponse = ApiResponse.CREATED;
+	public Map<String, Object> create(AccountResponseDTO accountDTO, Map<String, Object> resultMap) {
+		RestApiHeaderResponse restApiHeaderResponse = RestApiHeaderResponse.CREATED;
 		// Status는 Active로 Set
 		accountDTO.setStatus(Account.Status.ACTIVE);
 		// 입력받아온 비밀번호는 암호화
@@ -79,10 +79,10 @@ public class AccountService {
 			accountRepository.save(account);
 		} catch (Exception e) {
 			e.printStackTrace();
-			apiResponse = ApiResponse.ERROR_ABORT;
+			restApiHeaderResponse = RestApiHeaderResponse.ERROR_ABORT;
 		} finally {
-			resultMap.put("status", apiResponse.status);
-			resultMap.put("result", apiResponse.result);
+			resultMap.put("code", restApiHeaderResponse.code);
+			resultMap.put("result", restApiHeaderResponse.result);
 		}
 		return resultMap;
 	}
@@ -94,9 +94,9 @@ public class AccountService {
 	 */
 	public Map<String, Object> read(AccountRequestDTO accountRequestDTO, Map<String, Object> result) {
 		// 기본 변수 설정
-		ApiResponse apiResponse = ApiResponse.SUCCESS;
+		RestApiHeaderResponse restApiHeaderResponse = RestApiHeaderResponse.SUCCESS;
 		List<Account> account = new ArrayList<Account>();
-		List<AccountDTO> accountDTO = new ArrayList<AccountDTO>();
+		List<AccountResponseDTO> accountDTO = new ArrayList<AccountResponseDTO>();
 		Object accountStatus = accountRequestDTO.getStatus();
 		Object userStatus = accountRequestDTO.getUserStatus();
 		Object role = accountRequestDTO.getRole();
@@ -114,14 +114,14 @@ public class AccountService {
 				specification = specification.and(AccountSpecification.findByRole(role));
 			}
 			account = accountRepository.findAll(specification);
-			accountDTO = account.stream().map(a -> modelMapper.map(a, AccountDTO.class)).collect(Collectors.toList());
+			accountDTO = account.stream().map(a -> modelMapper.map(a, AccountResponseDTO.class)).collect(Collectors.toList());
 		} catch (Exception e) {
 			e.printStackTrace();
-			apiResponse = ApiResponse.ERROR_ABORT;
+			restApiHeaderResponse = RestApiHeaderResponse.ERROR_ABORT;
 		}
 		// resultMap에 담기
-		result.put("status", apiResponse.status);
-		result.put("result", apiResponse.result);
+		result.put("code", restApiHeaderResponse.code);
+		result.put("result", restApiHeaderResponse.result);
 		result.put("accountList", accountDTO);		
 		return result;
 	}
@@ -133,9 +133,9 @@ public class AccountService {
 	 */
 	public Map<String, Object> count(Map<String, Object> paramMap, Map<String, Object> resultMap) {
 		// 기본 변수 설정
-		ApiResponse apiResponse = ApiResponse.SUCCESS;
+		RestApiHeaderResponse restApiHeaderResponse = RestApiHeaderResponse.SUCCESS;
 		long count = 0;
-		Object accountStatus = paramMap.get("status");
+		Object accountStatus = paramMap.get("code");
 		Object userStatus = paramMap.get("userStatus");
 		Object role = paramMap.get("role");
 		Object department = paramMap.get("department");
@@ -161,11 +161,11 @@ public class AccountService {
 			count = accountRepository.count(specification);	
 		} catch (Exception e) {
 			e.printStackTrace();
-			apiResponse = ApiResponse.ERROR_ABORT;
+			restApiHeaderResponse = RestApiHeaderResponse.ERROR_ABORT;
 		}
 		// resultMap에 담기
-		resultMap.put("status", apiResponse.status);
-		resultMap.put("result",  apiResponse.result);
+		resultMap.put("code", restApiHeaderResponse.code);
+		resultMap.put("result",  restApiHeaderResponse.result);
 		resultMap.put("count", count);
 		return resultMap;
 	}
@@ -177,22 +177,22 @@ public class AccountService {
 	 */
 	public Map<String, Object> readOne(Long id, Map<String, Object> resultMap) {
 		// 기본 변수 설정
-		ApiResponse apiResponse = ApiResponse.SUCCESS;
+		RestApiHeaderResponse restApiHeaderResponse = RestApiHeaderResponse.SUCCESS;
 		Account account = null;
-		AccountDTO accountDTO = null;
+		AccountResponseDTO accountDTO = null;
 		// 특정 계정 조회
 		try {			
 			account = accountRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("해당 계정 정보가 없습니다. id: " + id));
-			accountDTO = new AccountDTO(account);
+			accountDTO = new AccountResponseDTO(account);
 			resultMap.put("account", accountDTO);
 		} catch (Exception e) {
 			e.printStackTrace();
-			apiResponse = ApiResponse.ACCOUNT_DOES_NOT_EXISTS;
+			restApiHeaderResponse = RestApiHeaderResponse.ACCOUNT_DOES_NOT_EXISTS;
 		}
 		// resultMap에 담기
-		resultMap.put("status", apiResponse.status);
-		resultMap.put("result", apiResponse.result);
-		resultMap.put("message", apiResponse.message);
+		resultMap.put("code", restApiHeaderResponse.code);
+		resultMap.put("result", restApiHeaderResponse.result);
+		resultMap.put("message", restApiHeaderResponse.message);
 		return resultMap;
 	}
 
@@ -204,23 +204,23 @@ public class AccountService {
 	 * @return
 	 */
 	@Transactional
-	public Map<String, Object> update(AccountDTO accountDTO, Map<String, Object> resultMap) {
-		ApiResponse apiResponse = ApiResponse.SUCCESS;
+	public Map<String, Object> update(AccountResponseDTO accountDTO, Map<String, Object> resultMap) {
+		RestApiHeaderResponse restApiHeaderResponse = RestApiHeaderResponse.SUCCESS;
 		long id = accountDTO.getId();
 		Optional<Account> account = Optional.empty();
 		// 해당 계정이 있는지 확인
 		account = accountRepository.findById(id);
 		if (!account.isPresent()) {
-			apiResponse = ApiResponse.ACCOUNT_DOES_NOT_EXISTS;
-			resultMap.put("status", apiResponse.status);
-			resultMap.put("result", apiResponse.result);
+			restApiHeaderResponse = RestApiHeaderResponse.ACCOUNT_DOES_NOT_EXISTS;
+			resultMap.put("code", restApiHeaderResponse.code);
+			resultMap.put("result", restApiHeaderResponse.result);
 			return resultMap;
 		}
 		// 비밀번호 확인
 		if (!encoder.matches(accountDTO.getPassword(), account.get().getPassword())) {
-			apiResponse = ApiResponse.PASSWORD_DOES_NOT_MATCHED;
-			resultMap.put("status", apiResponse.status);
-			resultMap.put("result", apiResponse.result);
+			restApiHeaderResponse = RestApiHeaderResponse.PASSWORD_DOES_NOT_MATCHED;
+			resultMap.put("code", restApiHeaderResponse.code);
+			resultMap.put("result", restApiHeaderResponse.result);
 			return resultMap;
 		}
 		// 계정 정보 수정 (UPDATE)
@@ -228,12 +228,12 @@ public class AccountService {
 			accountRepository.save(accountDTO.toEntity());
 		} catch (Exception e) {
 			e.printStackTrace();
-			apiResponse = ApiResponse.ERROR_ABORT;
-			resultMap.put("status", apiResponse.status);
+			restApiHeaderResponse = RestApiHeaderResponse.ERROR_ABORT;
+			resultMap.put("code", restApiHeaderResponse.code);
 		}
-		resultMap.put("status", apiResponse.status);
-		resultMap.put("result", apiResponse.result);
-		resultMap.put("message", apiResponse.message);
+		resultMap.put("code", restApiHeaderResponse.code);
+		resultMap.put("result", restApiHeaderResponse.result);
+		resultMap.put("message", restApiHeaderResponse.message);
 		return resultMap;
 	}
 
@@ -243,7 +243,7 @@ public class AccountService {
 	 */
 	@Transactional
 	public Map<String, Object> delete(List<Long> payload, Map<String, Object> resultMap) {
-		ApiResponse apiResponse = ApiResponse.SUCCESS;
+		RestApiHeaderResponse restApiHeaderResponse = RestApiHeaderResponse.SUCCESS;
 		// 대상 계정이 존재하는지 확인
 		try {
 			for (int p=0; p<payload.size(); p++) {
@@ -251,10 +251,10 @@ public class AccountService {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			apiResponse = ApiResponse.ACCOUNT_DOES_NOT_EXISTS;
-			resultMap.put("status", apiResponse.status);
-			resultMap.put("result", apiResponse.result);
-			resultMap.put("message", apiResponse.message);
+			restApiHeaderResponse = RestApiHeaderResponse.ACCOUNT_DOES_NOT_EXISTS;
+			resultMap.put("code", restApiHeaderResponse.code);
+			resultMap.put("result", restApiHeaderResponse.result);
+			resultMap.put("message", restApiHeaderResponse.message);
 			return resultMap;
 		}
 		// 계정이 존재하면 삭제
@@ -263,16 +263,16 @@ public class AccountService {
 				accountRepository.deleteById(payload.get(d));
 			} catch (Exception e) {
 				e.printStackTrace();
-				apiResponse = ApiResponse.ERROR_ABORT;
-				resultMap.put("status", apiResponse.status);
-				resultMap.put("result", apiResponse.result);
-				resultMap.put("message", apiResponse.message);
+				restApiHeaderResponse = RestApiHeaderResponse.ERROR_ABORT;
+				resultMap.put("code", restApiHeaderResponse.code);
+				resultMap.put("result", restApiHeaderResponse.result);
+				resultMap.put("message", restApiHeaderResponse.message);
 				return resultMap;
 			}
 		}
-		resultMap.put("status", apiResponse.status);
-		resultMap.put("result", apiResponse.result);
-		resultMap.put("message", apiResponse.message);
+		resultMap.put("code", restApiHeaderResponse.code);
+		resultMap.put("result", restApiHeaderResponse.result);
+		resultMap.put("message", restApiHeaderResponse.message);
 		resultMap.put("deletedId", payload);
 		return resultMap;
 	}
@@ -283,9 +283,9 @@ public class AccountService {
 	 * @param accountDTO
 	 * @return
 	 */
-	public Map<String, Object> resetPassword(AccountDTO accountDTO, Map<String, Object> resultMap) {
+	public Map<String, Object> resetPassword(AccountResponseDTO accountDTO, Map<String, Object> resultMap) {
 		// 기본 변수 선언
-		ApiResponse apiResponse = ApiResponse.SUCCESS;
+		RestApiHeaderResponse restApiHeaderResponse = RestApiHeaderResponse.SUCCESS;
 		String email = accountDTO.getEmail();
 		// 임시 비밀번호 생성
 		String tempPassword = getTempPassword();
@@ -296,10 +296,10 @@ public class AccountService {
 			account = readAccount(accountDTO, account);
 		} catch (Exception e) { // 계정이 존재하지 않는 경우
 			e.printStackTrace();
-			apiResponse = ApiResponse.ACCOUNT_DOES_NOT_EXISTS;
-			resultMap.put("status", apiResponse.status);
-			resultMap.put("result", apiResponse.result);
-			resultMap.put("message", apiResponse.message);
+			restApiHeaderResponse = RestApiHeaderResponse.ACCOUNT_DOES_NOT_EXISTS;
+			resultMap.put("code", restApiHeaderResponse.code);
+			resultMap.put("result", restApiHeaderResponse.result);
+			resultMap.put("message", restApiHeaderResponse.message);
 			return resultMap;
 		}
 		// 임시 비밀번호 메일 발송
@@ -310,10 +310,10 @@ public class AccountService {
 			sendMail(mailDTO);
 		} catch (Exception e) {
 			e.printStackTrace();
-			apiResponse = ApiResponse.ERROR_ABORT;
-			resultMap.put("status", apiResponse.status);
-			resultMap.put("result", apiResponse.result);
-			resultMap.put("message", apiResponse.message);
+			restApiHeaderResponse = RestApiHeaderResponse.ERROR_ABORT;
+			resultMap.put("code", restApiHeaderResponse.code);
+			resultMap.put("result", restApiHeaderResponse.result);
+			resultMap.put("message", restApiHeaderResponse.message);
 			return resultMap;
 		}
 		// 해당 사용자의 비밀번호를 임시 비밀번호로 변경
@@ -321,16 +321,16 @@ public class AccountService {
 			accountRepository.updatePassword(account.getId(), encoder.encode(tempPassword), 0, Account.Status.EXPIRED.getKey(), Account.UserStatus.OFFLINE.getKey());	
 		} catch (Exception e) {
 			e.printStackTrace();
-			apiResponse = ApiResponse.ERROR_ABORT;
-			resultMap.put("status", apiResponse.status);
-			resultMap.put("result", apiResponse.result);
-			resultMap.put("message", apiResponse.message);
+			restApiHeaderResponse = RestApiHeaderResponse.ERROR_ABORT;
+			resultMap.put("code", restApiHeaderResponse.code);
+			resultMap.put("result", restApiHeaderResponse.result);
+			resultMap.put("message", restApiHeaderResponse.message);
 			return resultMap;
 		}
 		// 모든 작업이 정상적으로 끝나면 성공 결과로 리턴
-		resultMap.put("status", apiResponse.status);
-		resultMap.put("result", apiResponse.result);
-		resultMap.put("message", apiResponse.message);
+		resultMap.put("code", restApiHeaderResponse.code);
+		resultMap.put("result", restApiHeaderResponse.result);
+		resultMap.put("message", restApiHeaderResponse.message);
 		return resultMap;
 	}
 	
@@ -338,29 +338,29 @@ public class AccountService {
 	 * 비밀번호 변경
 	 * 
 	 * @param accountDTO
-	 * @return status
+	 * @return code
 	 */
-	public Map<String, Object> updatePassword(AccountDTO accountDTO, Map<String, Object> resultMap) {
+	public Map<String, Object> updatePassword(AccountResponseDTO accountDTO, Map<String, Object> resultMap) {
 		// 기본 변수 선언
-		ApiResponse apiResponse = ApiResponse.SUCCESS;
+		RestApiHeaderResponse restApiHeaderResponse = RestApiHeaderResponse.SUCCESS;
 		Account account = null;
 		// 계정의 유무 확인
 		try {
 			account = readAccount(accountDTO, account);
 		} catch (Exception e) {
 			e.printStackTrace();
-			apiResponse = ApiResponse.ACCOUNT_DOES_NOT_EXISTS;
-			resultMap.put("status", apiResponse.status);
-			resultMap.put("result", apiResponse.result);
-			resultMap.put("message", apiResponse.message);
+			restApiHeaderResponse = RestApiHeaderResponse.ACCOUNT_DOES_NOT_EXISTS;
+			resultMap.put("code", restApiHeaderResponse.code);
+			resultMap.put("result", restApiHeaderResponse.result);
+			resultMap.put("message", restApiHeaderResponse.message);
 			return resultMap;
 		}
 		// 계정의 상태가 BLOCKED인 경우 비밀번호 변경이 불가능
 		if (account.getStatus() == Account.Status.BLOCKED) {
-			apiResponse = ApiResponse.BLOCKED_ACCOUNT;
-			resultMap.put("status", apiResponse.status);
-			resultMap.put("result", apiResponse.result);
-			resultMap.put("message", apiResponse.message);
+			restApiHeaderResponse = RestApiHeaderResponse.BLOCKED_ACCOUNT;
+			resultMap.put("code", restApiHeaderResponse.code);
+			resultMap.put("result", restApiHeaderResponse.result);
+			resultMap.put("message", restApiHeaderResponse.message);
 			return resultMap;
 		}
 		// 비밀번호 변경
@@ -370,18 +370,18 @@ public class AccountService {
 				accountRepository.updatePassword(account.getId(), encoder.encode(accountDTO.getPassword()), 0, Account.Status.ACTIVE.getKey(), Account.UserStatus.OFFLINE.getKey());	
 			} catch (Exception e) {
 				e.printStackTrace();
-				apiResponse = ApiResponse.ERROR_ABORT;
-				resultMap.put("status", apiResponse.status);
-				resultMap.put("result", apiResponse.result);
-				resultMap.put("message", apiResponse.message);
+				restApiHeaderResponse = RestApiHeaderResponse.ERROR_ABORT;
+				resultMap.put("code", restApiHeaderResponse.code);
+				resultMap.put("result", restApiHeaderResponse.result);
+				resultMap.put("message", restApiHeaderResponse.message);
 			}
 		} else {
-			apiResponse = ApiResponse.PASSWORD_DOES_NOT_MATCHED;
+			restApiHeaderResponse = RestApiHeaderResponse.PASSWORD_DOES_NOT_MATCHED;
 		}
 		// 결과 리턴
-		resultMap.put("status", apiResponse.status);
-		resultMap.put("result", apiResponse.result);
-		resultMap.put("message", apiResponse.message);
+		resultMap.put("code", restApiHeaderResponse.code);
+		resultMap.put("result", restApiHeaderResponse.result);
+		resultMap.put("message", restApiHeaderResponse.message);
 		return resultMap;
 	}
 
@@ -453,19 +453,19 @@ public class AccountService {
 	 * @return Map<String, Object>
 	 */
 	public Map<String, Object> checkEmail(String email, Map<String, Object> resultMap) {
-		ApiResponse apiResponse = ApiResponse.ACCOUNT_ALREADY_EXISTS;
+		RestApiHeaderResponse restApiHeaderResponse = RestApiHeaderResponse.ACCOUNT_ALREADY_EXISTS;
 		try {
 			Optional<Account> account = accountRepository.findByEmail(email);
 			if (!account.isPresent()) {
-				apiResponse = ApiResponse.ACCOUNT_DOES_NOT_EXISTS;
+				restApiHeaderResponse = RestApiHeaderResponse.ACCOUNT_DOES_NOT_EXISTS;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			apiResponse = ApiResponse.ERROR_ABORT;
+			restApiHeaderResponse = RestApiHeaderResponse.ERROR_ABORT;
 		} finally {
-			resultMap.put("status", apiResponse.status);
-			resultMap.put("result", apiResponse.result);
-			resultMap.put("message", apiResponse.message);
+			resultMap.put("code", restApiHeaderResponse.code);
+			resultMap.put("result", restApiHeaderResponse.result);
+			resultMap.put("message", restApiHeaderResponse.message);
 		}
 		return resultMap;
 	}
@@ -476,25 +476,25 @@ public class AccountService {
 	 * @return List<Account>
 	 */
 	public Map<String, Object> findByStatus(List<Status> accountStatus, Map<String, Object> resultMap) {
-		ApiResponse apiResponse = ApiResponse.SUCCESS;
+		RestApiHeaderResponse restApiHeaderResponse = RestApiHeaderResponse.SUCCESS;
 		List<Account> account = new ArrayList<Account>();;
-		List<AccountDTO> accountDTO = new ArrayList<AccountDTO>();		
+		List<AccountResponseDTO> accountDTO = new ArrayList<AccountResponseDTO>();		
 		// 특정 상태(Status)인 계정
 		try {
 			for (int s=0; s<accountStatus.size(); s++) {
 				account = accountRepository.findByStatus(accountStatus.get(s));
-				accountDTO.addAll(account.stream().map(a -> modelMapper.map(a, AccountDTO.class)).collect(Collectors.toList())) ;
+				accountDTO.addAll(account.stream().map(a -> modelMapper.map(a, AccountResponseDTO.class)).collect(Collectors.toList())) ;
 			}
 			resultMap.put("accountList", accountDTO);
 			resultMap.put("accountSize", accountDTO.size());
 		} catch (Exception e) {
 			e.printStackTrace();
-			apiResponse = ApiResponse.ERROR_ABORT;
+			restApiHeaderResponse = RestApiHeaderResponse.ERROR_ABORT;
 		}
 		// resultMap에 담기
-		resultMap.put("status", apiResponse.status);
-		resultMap.put("result", apiResponse.result);
-		resultMap.put("message", apiResponse.message);		
+		resultMap.put("code", restApiHeaderResponse.code);
+		resultMap.put("result", restApiHeaderResponse.result);
+		resultMap.put("message", restApiHeaderResponse.message);		
 		return resultMap;
 	}
 	
@@ -504,24 +504,24 @@ public class AccountService {
 	 * @return List<Account>
 	 */
 	public Map<String, Object> findByUserStatus(List<UserStatus> userStatus, Map<String, Object> resultMap) {
-		ApiResponse apiResponse = ApiResponse.SUCCESS;
+		RestApiHeaderResponse restApiHeaderResponse = RestApiHeaderResponse.SUCCESS;
 		List<Account> account = new ArrayList<Account>();;
-		List<AccountDTO> accountDTO = new ArrayList<AccountDTO>();
+		List<AccountResponseDTO> accountDTO = new ArrayList<AccountResponseDTO>();
 		// 특정 계정 목록 조회
 		try {
 			for (int u=0; u<userStatus.size(); u++) {
 				account = accountRepository.findByUserStatus(userStatus.get(u));
-				accountDTO.addAll(account.stream().map(a -> modelMapper.map(a, AccountDTO.class)).collect(Collectors.toList()));	
+				accountDTO.addAll(account.stream().map(a -> modelMapper.map(a, AccountResponseDTO.class)).collect(Collectors.toList()));	
 			}
 			resultMap.put("accountList", accountDTO);
 			resultMap.put("accountSize", accountDTO.size());
 		} catch (Exception e) {
-			apiResponse = ApiResponse.ERROR_ABORT;
+			restApiHeaderResponse = RestApiHeaderResponse.ERROR_ABORT;
 		}
 		// resultMap에 담기
-		resultMap.put("status", apiResponse.status);
-		resultMap.put("result", apiResponse.result);
-		resultMap.put("message", apiResponse.message);
+		resultMap.put("code", restApiHeaderResponse.code);
+		resultMap.put("result", restApiHeaderResponse.result);
+		resultMap.put("message", restApiHeaderResponse.message);
 		return resultMap;
 	}
 	
@@ -530,17 +530,17 @@ public class AccountService {
 	 * (UPDATE)
 	 * @return List<Account>
 	 */
-	public Map<String, Object> updateUserStatus(AccountDTO accountDTO, Map<String, Object> resultMap) {
-		ApiResponse apiResponse = ApiResponse.SUCCESS;
+	public Map<String, Object> updateUserStatus(AccountResponseDTO accountDTO, Map<String, Object> resultMap) {
+		RestApiHeaderResponse restApiHeaderResponse = RestApiHeaderResponse.SUCCESS;
 		// 사용자의 상태 변경
 		try {
 			accountRepository.updateUserStatus(accountDTO.getEmail(), accountDTO.getUserStatus().getKey());
 		} catch (Exception e) {
 			e.printStackTrace();
-			apiResponse = ApiResponse.ERROR_ABORT;
+			restApiHeaderResponse = RestApiHeaderResponse.ERROR_ABORT;
 		}
-		resultMap.put("status", apiResponse.status);
-		resultMap.put("result", apiResponse.result);
+		resultMap.put("code", restApiHeaderResponse.code);
+		resultMap.put("result", restApiHeaderResponse.result);
 		return resultMap;
 	}
 

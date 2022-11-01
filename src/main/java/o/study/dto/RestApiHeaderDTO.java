@@ -8,7 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Rest API Common Response DTO
+ * Rest API Header Response DTO
  * @author jsw
  */
 @Data
@@ -16,8 +16,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ApiResponseDTO {	
-	private Integer status;				// Status
+public class RestApiHeaderDTO {	
+	private int code;						// Code
 	private String result;				// Result
 	private String message;			// Message
 }

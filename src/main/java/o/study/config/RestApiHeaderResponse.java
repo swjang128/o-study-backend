@@ -8,11 +8,13 @@ import lombok.AllArgsConstructor;
  *	status(Integer), result(String), message(String)
  */
 @AllArgsConstructor
-public enum ApiResponse {	
+public enum RestApiHeaderResponse {	
 	/* HttpStatusCode */
 	// Success (2xx)
 	SUCCESS(200, "Success", "성공"),
-	CREATED(201, "Created", "생성완료"),
+	CREATED(201, "Created", "저장 완료"),
+	UPDATED(200, "Updated", "변경 완료"),
+	DELETED(200, "Deleted", "삭제 완료"),
 	// Request Error (4xx)
 	BAD_REQUEST(400, "Bad Request", "잘못된 요청입니다"),
 	UNAUTHORIZED(401, "Unauthorized", "권한이 없습니다"),
@@ -33,7 +35,7 @@ public enum ApiResponse {
 	// Database Error (6xx)
 	DB_ERROR(600, "DB Error", "데이터베이스 에러가 발생하였습니다"),
 	
-	/* O-MBTI Custom Response Code */
+	/* O-Study Custom Response Code */
 	// Common (9xx)
 	EMPTY_RESULT_DATA_ACCESS(904, "Empty Result Data Access", "비어있는 데이터에 접근하였습니다"),
 	ERROR_ABORT(999, "Error Abort", "에러가 발생하였습니다"),
@@ -44,9 +46,9 @@ public enum ApiResponse {
 	PASSWORD_DOES_NOT_MATCHED(1005, "Password Does Not Matched", "비밀번호가 일치하지 않습니다"),
 	BAD_CREDENTIALS(1014, "The Account Does Not Exist Or The Password Does Not Matched", "계정이 없거나 비밀번호가 일치하지 않습니다"),
 	BLOCKED_ACCOUNT(1023, "Blocked Account", "계정이 잠겨있습니다. 비밀번호 초기화 후 진행해주세요"),
-	DISABLED_ACCOUNT(1024, "Disabled Account", "비활성화된 계정입니다");		
+	DISABLED_ACCOUNT(1024, "Disabled Account", "비활성화된 계정입니다");
 	
-	public int status;	
+	public int code;	
 	public String result;
 	public String message;
 }

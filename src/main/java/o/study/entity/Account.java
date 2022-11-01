@@ -29,7 +29,7 @@ import lombok.RequiredArgsConstructor;
 @Builder
 @Entity
 @EqualsAndHashCode(of="id")
-@Table(name="ACCOUNT")
+@Table(name="O_STUDY_ACCOUNT")
 public class Account {
 
 	@Id

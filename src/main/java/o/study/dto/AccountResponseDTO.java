@@ -23,7 +23,7 @@ import o.study.entity.Account.UserStatus;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AccountDTO {	
+public class AccountResponseDTO {	
 	private Long id;										// 사번
 	
 	@NotBlank(message="이름을 입력해주세요.")
@@ -78,7 +78,7 @@ public class AccountDTO {
 	 * account Entity 정보를 DTO로 받아 응답받는 메소드
 	 * @param account
 	 */
-	public AccountDTO (Account account) {
+	public AccountResponseDTO (Account account) {
 		this.id = account.getId();
 		this.name = account.getName();
 		this.email = account.getEmail();
