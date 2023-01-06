@@ -40,10 +40,10 @@ public class RestaurantService {
 		
 		// body에 담을 DTO 객체 가져오기
 		FoodResponseDTO foodResponseDTO = new FoodResponseDTO();
-		foodResponseDTO.setName("순대국");
-		foodResponseDTO.setRestaurantName("맛있는 식당");
-		foodResponseDTO.setAddress("강남구");
-		foodResponseDTO.setType("한식");
+		foodResponseDTO.setName("토마토 라멘");
+		foodResponseDTO.setRestaurantName("카토멘");
+		foodResponseDTO.setAddress("서울 강남구 삼성로85길 39 가리온빌딩 1층 카토멘");
+		foodResponseDTO.setType("퓨전");
 		
 		// ObjectMapper로 DTO -> Map
 		body = objectMapper.convertValue(foodResponseDTO, Map.class);		
