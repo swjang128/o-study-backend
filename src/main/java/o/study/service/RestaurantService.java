@@ -44,6 +44,8 @@ public class RestaurantService {
 		foodResponseDTO.setRestaurantName("카토멘");
 		foodResponseDTO.setAddress("서울 강남구 삼성로85길 39 가리온빌딩 1층 카토멘");
 		foodResponseDTO.setType("퓨전");
+		foodResponseDTO.setPicks(1);
+		foodResponseDTO.setVisits(4);
 		
 		// ObjectMapper로 DTO -> Map
 		body = objectMapper.convertValue(foodResponseDTO, Map.class);		
