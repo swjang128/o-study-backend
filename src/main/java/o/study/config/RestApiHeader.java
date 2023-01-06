@@ -8,7 +8,7 @@ import lombok.AllArgsConstructor;
  *	status(Integer), result(String), message(String)
  */
 @AllArgsConstructor
-public enum RestApiHeaderResponse {	
+public enum RestApiHeader {	
 	/* HttpStatusCode */
 	// Success (2xx)
 	SUCCESS(200, "Success", "성공"),

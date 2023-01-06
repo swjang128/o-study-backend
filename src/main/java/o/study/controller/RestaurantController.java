@@ -11,28 +11,31 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import o.study.config.RestApiResponse;
 import o.study.dto.BoardRequestDTO;
+import o.study.dto.FoodRequestDTO;
 import o.study.service.BoardService;
+import o.study.service.RestaurantService;
 
 /**
- * Board에 대한 Rest API
+ * 음식 메뉴 고르기에 대한 Rest API
  * 
  * @author jsw
  *
  */
 @RestController
-@RequestMapping("board")
-public class BoardController {
+@RequestMapping("food")
+public class RestaurantController {
 	@Autowired
-	BoardService boardService;
+	RestaurantService restaurantService;
 
 	/**
 	 * Read
 	 * @return Map<String, Object>
 	 */
-	@GetMapping("")
-	public Map<String, Object> result(@RequestBody @Valid BoardRequestDTO boardRequestDTO) {
-		return	boardService.read(boardRequestDTO);
+	@GetMapping("lunch")
+	public Map<String, Object> getLunch(/* @RequestBody @Valid FoodRequestDTO restaurantRequestDTO */) {
+		return	restaurantService.getLunch();
 	}
 
 }

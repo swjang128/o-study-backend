@@ -18,34 +18,10 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 
-import o.study.dto.RestApiHeaderDTO;
-import o.study.dto.RestApiResultDTO;
-
 @ControllerAdvice	// 예외 처리를 전역 설정	// Controller, RestController에서만 이 핸들러를 호출하여 사용할 수 있다!
 @RestController
 public class ResponseManager {
 	Map<String, Object> result = new HashMap<String, Object>();
-	/**
-	 * 공통 REST API Header 응답값 가공
-	 * @return CommonResponseDTO
-	 */	
-	public RestApiHeaderDTO restApiHeader(RestApiHeaderDTO header, RestApiHeaderResponse resultResponse) {
-		header.setCode(resultResponse.code);
-		header.setResult(resultResponse.result);
-		header.setMessage(resultResponse.message);
-		return header;
-	}
-	
-	/**
-	 * 공통 REST API result(header+body) 가공
-	 * @return CommonResponseDTO
-	 */	
-	public RestApiResultDTO restApiResult(RestApiHeaderDTO header, HashMap<String, Object> body, RestApiResultDTO result) {
-		result.setHeader(header);
-		result.setBody(body);
-		return result;
-	}
-	
 	/**
 	 * @Valid 어노테이션에 대한 예외처리 (400 에러)
 	 * @param exception 
@@ -71,8 +47,8 @@ public class ResponseManager {
 		
 		// 예외처리 결과를 리턴
 		HashMap<String, Object> header = new HashMap<String, Object>();
-		header.put("code", RestApiHeaderResponse.BAD_REQUEST.code);
-		result.put("result", RestApiHeaderResponse.BAD_REQUEST.result);
+		header.put("code", RestApiHeader.BAD_REQUEST.code);
+		result.put("result", RestApiHeader.BAD_REQUEST.result);
 		result.put("message",  message);
 		
 		return result; 
@@ -86,9 +62,9 @@ public class ResponseManager {
 	@ExceptionHandler(EmptyResultDataAccessException.class)
 	public Map<String, Object> emptyResultDataAccessExceptionHandler(EmptyResultDataAccessException exception) {
 		// 예외처리 결과를 리턴 
-		result.put("code",  RestApiHeaderResponse.EMPTY_RESULT_DATA_ACCESS.code);
-		result.put("result",  RestApiHeaderResponse.EMPTY_RESULT_DATA_ACCESS.result);
-		result.put("message",  RestApiHeaderResponse.EMPTY_RESULT_DATA_ACCESS.message);
+		result.put("code",  RestApiHeader.EMPTY_RESULT_DATA_ACCESS.code);
+		result.put("result",  RestApiHeader.EMPTY_RESULT_DATA_ACCESS.result);
+		result.put("message",  RestApiHeader.EMPTY_RESULT_DATA_ACCESS.message);
 		
 		return result;
 	}

@@ -19,12 +19,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import o.study.config.RestApiHeaderResponse;
 import o.study.dto.AccountResponseDTO;
 import o.study.dto.BoardRequestDTO;
 import o.study.dto.AccountRequestDTO;
 import o.study.dto.MailDTO;
-import o.study.dto.RestApiResultDTO;
 import o.study.entity.Account;
 import o.study.entity.Account.Status;
 import o.study.entity.Account.UserStatus;
@@ -39,7 +37,7 @@ public class BoardService {
 	@Autowired
 	ModelMapper modelMapper;
 
-	public RestApiResultDTO read(BoardRequestDTO boardRequestDTO) {
+	public Map<String, Object> read(BoardRequestDTO boardRequestDTO) {
 		return null;
 	}
 }

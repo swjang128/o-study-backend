@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import o.study.dto.AccountResponseDTO;
 import o.study.entity.Account;
 import o.study.repository.AccountRepository;
-import o.study.service.AccountService;
 
 @SpringBootApplication
 @EnableEurekaClient
@@ -26,8 +25,6 @@ public class OStudyBackendApplication {
 	private String profile;
 	@Autowired
 	AccountRepository accountRepository;
-	@Autowired
-	AccountService accountService;
 	@Autowired
 	BCryptPasswordEncoder encoder;
 
